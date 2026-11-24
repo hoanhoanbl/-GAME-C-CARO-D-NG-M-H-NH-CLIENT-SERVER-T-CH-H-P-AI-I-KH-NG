@@ -1,7 +1,6 @@
 # KẾ HOẠCH DỰ ÁN: GAME CỜ CARO CLIENT-SERVER TÍCH HỢP AI ĐỐI KHÁNG
 
 > Nhóm: **Nguyễn Phan Như Hoàng** (24IT079) · **Nguyễn Phúc Phi** (24IT200) · GVHD: ThS. Nguyễn Ngọc Huyền Trân
-> Thời gian: 10/11/2026 → nộp 01/12/2026
 > Tài liệu này là **nguồn sự thật duy nhất** của nhóm. Muốn đổi quyết định ở mục 3, 9, 10 thì sửa tài liệu này trước, báo người kia, rồi mới sửa code.
 
 ---
@@ -667,7 +666,7 @@ Thống kê (FE-21) tính bằng truy vấn trên `matches`, không lưu cột r
 
 Mỗi việc có mã `GĐ.người.số` (ví dụ `1.H.2`) để ghi vào commit và báo cáo tiến độ.
 
-### GĐ0. Chốt thiết kế và dựng khung (10/11 – 12/11) — làm cùng nhau
+### GĐ0. Chốt thiết kế và dựng khung — làm cùng nhau
 
 | Mã | Việc | Ai | Kết quả |
 |---|---|---|---|
@@ -680,7 +679,7 @@ Mỗi việc có mã `GĐ.người.số` (ví dụ `1.H.2`) để ghi vào commi
 
 **Kết thúc GĐ0:** mọi file trong mục 8 đã tồn tại. Từ đây mỗi người chỉ sửa file của mình, nên gần như không còn conflict.
 
-### GĐ1. Nền tảng song song (13/11 – 17/11)
+### GĐ1. Nền tảng song song
 
 | Mã | Việc | FE | Ai |
 |---|---|---|---|
@@ -696,9 +695,9 @@ Mỗi việc có mã `GĐ.người.số` (ví dụ `1.H.2`) để ghi vào commi
 | 1.P.6 | `PasswordHasher`, `AuthService`, `AuthCommandController` (`REGISTER`, `LOGIN`, `LOGOUT`), `AuthMessages`, `ErrorMessages` + `PasswordHasherTest`, `AuthServiceTest` | FE-27 | P |
 | 1.P.7 | `login.fxml` + `LoginController`: form đăng nhập, form đăng ký, báo lỗi từng mã | FE-27 | P |
 
-**Điểm hẹn 17/11:** client kết nối, đăng ký, đăng nhập, đăng xuất được; tài khoản nằm trong MySQL. `GameSession` qua hết test. Hoàng chạy MySQL bằng Docker theo README và đăng nhập bằng client của Phi; Phi thử `SceneManager` của Hoàng.
+**Điểm hẹn cuối GĐ1:** client kết nối, đăng ký, đăng nhập, đăng xuất được; tài khoản nằm trong MySQL. `GameSession` qua hết test. Hoàng chạy MySQL bằng Docker theo README và đăng nhập bằng client của Phi; Phi thử `SceneManager` của Hoàng.
 
-### GĐ2. Ghép nối ván người–người (18/11 – 22/11)
+### GĐ2. Ghép nối ván người–người
 
 | Mã | Việc | FE | Ai |
 |---|---|---|---|
@@ -707,20 +706,20 @@ Mỗi việc có mã `GĐ.người.số` (ví dụ `1.H.2`) để ghi vào commi
 | 2.H.3 | `GAME_OVER`, tô đường thắng, `ResultDialog` | FE-11 | H |
 | 2.H.4 | `Evaluator`, `MoveGenerator`, `AIEngine` minimax + JUnit (bot thắng khi có 4 quân, bot chặn đường 4) | FE-16 | H |
 | 2.H.5 | `CHAT` / `CHAT_MSG` trong `GameCommandController` + `GameMessages.chatMsg`, `chat.fxml` + `ChatController` + `ChatModel` | FE-15 | H |
-| 2.P.1 | `RoomManager`, `Room`, `LIST_ROOMS`, `CREATE_ROOM`, `LobbyMessages`, `LobbyModel` + `lobby.fxml` + `LobbyController` (nút Chơi với máy + ô độ khó tạm thời chỉ gửi lệnh, nút Đăng xuất). **Xong trước 19/11** để Hoàng ghép ván | FE-07 | P |
+| 2.P.1 | `RoomManager`, `Room`, `LIST_ROOMS`, `CREATE_ROOM`, `LobbyMessages`, `LobbyModel` + `lobby.fxml` + `LobbyController` (nút Chơi với máy + ô độ khó tạm thời chỉ gửi lệnh, nút Đăng xuất). **Làm sớm trong GĐ2** để Hoàng ghép ván | FE-07 | P |
 | 2.P.2 | `JOIN_ROOM`, `LEAVE_ROOM`, `waiting.fxml` + `WaitingController`; tạo `GameSession` qua factory; xử lý `GAME_START` → chuyển màn hình | FE-08 | P |
 | 2.P.3 | Phát hiện socket đóng, `PING/PONG`, dọn registry/phòng (tài khoản được đăng nhập lại), gọi `session.handleDisconnect` | FE-06 | P |
 | 2.HP.1 | **Chạy thử trên 2 máy thật**, kiểm tra firewall Windows | — | H + P |
 
-**Mốc M2 (22/11):** hai tài khoản trên hai máy đăng nhập, vào cùng phòng, chơi trọn một ván, có chat.
+**Mốc M2 (cuối GĐ2):** hai tài khoản trên hai máy đăng nhập, vào cùng phòng, chơi trọn một ván, có chat.
 
-### GĐ3. Bot và hoàn thiện chức năng (23/11 – 27/11)
+### GĐ3. Bot và hoàn thiện chức năng
 
 | Mã | Việc | FE | Ai |
 |---|---|---|---|
 | 3.H.1 | Alpha-Beta, sắp xếp nước đi, thắng ngay/chặn ngay | FE-17 | H |
 | 3.H.2 | `BotPlayer`, `BotExecutor`, `PLAY_BOT` cho cả khách và người đăng nhập (gọi `RoomManager.createBotRoom` của P); không ghi CSDL nếu có khách; `BACK_TO_LOBBY` của khách trả `BACK_TO_LOGIN`; `GameController` ẩn chat khi đấu bot | FE-18 | H |
-| 3.P.0 | `RoomManager.createBotRoom` (phòng ẩn cho ván với bot); bảng quyền khách trong `CommandDispatcher`; `PlayerRegistry` cấp tên `Khách-<số>`; `login.fxml` + `LoginController` thêm ô độ khó + nút "Chơi với máy", nhận `GAME_START` → `SceneManager.show(GAME)`. **Làm trước 24/11** để H ghép | FE-18 | P |
+| 3.P.0 | `RoomManager.createBotRoom` (phòng ẩn cho ván với bot); bảng quyền khách trong `CommandDispatcher`; `PlayerRegistry` cấp tên `Khách-<số>`; `login.fxml` + `LoginController` thêm ô độ khó + nút "Chơi với máy", nhận `GAME_START` → `SceneManager.show(GAME)`. **Làm đầu GĐ3** để H ghép | FE-18 | P |
 | 3.H.3 | Ba mức độ khó | FE-19 | H |
 | 3.H.4 | `SURRENDER` + nút Đầu hàng | FE-12 | H |
 | 3.H.5 | `handleDisconnect` → `GAME_OVER` lý do `LEFT` + thông báo client | FE-13 | H |
@@ -730,9 +729,9 @@ Mỗi việc có mã `GĐ.người.số` (ví dụ `1.H.2`) để ghi vào commi
 | 3.P.3 | UDP tìm server (nếu kịp) | FE-22 | P |
 | 3.P.4 | Viết `docs/test-report.md` với kịch bản mục 15, bắt đầu chạy | FE-24 | P |
 
-**Mốc M3 (27/11): đóng băng chức năng.** Sau ngày này chỉ sửa lỗi.
+**Mốc M3 (cuối GĐ3): đóng băng chức năng.** Sau mốc này chỉ sửa lỗi.
 
-### GĐ4. Kiểm thử, báo cáo, nộp (28/11 – 01/12)
+### GĐ4. Kiểm thử, báo cáo, nộp
 
 | Mã | Việc | Ai |
 |---|---|---|
@@ -741,15 +740,14 @@ Mỗi việc có mã `GĐ.người.số` (ví dụ `1.H.2`) để ghi vào commi
 | 4.H.2 | Báo cáo: luật cờ, thiết kế ván cờ, thuật toán AI, giao diện bàn cờ, kết quả đo | H |
 | 4.P.1 | Báo cáo: tổng quan, actor/use case, kiến trúc Client-Server, TCP/UDP, giao thức, CSDL, kiểm thử | P |
 | 4.HP.2 | Ảnh chụp màn hình, slide, video demo | H + P |
-| 4.HP.3 | Nộp lên hệ thống ngày **01/12** | H + P |
+| 4.HP.3 | Nộp lên hệ thống | H + P |
 
 ### Tổng quan tiến độ
 
 ```
-           10/11  13/11       18/11       23/11       28/11  01/12
 Hoàng  GĐ0 [khung]│Board,Session   │Game UI,Chat,Minimax│Bot,Đầu hàng,Rematch│Đo+Báo cáo
 Phi    GĐ0 [Maven]│Mạng,MySQL,Login│Sảnh,Phòng,MấtKN    │Lưu trận,UDP,Test   │Test+Báo cáo
-                  ▲ hẹn 17/11   ▲ M2 22/11      ▲ M3 27/11           ▲ nộp
+                  ▲ hẹn cuối GĐ1 ▲ M2 cuối GĐ2     ▲ M3 cuối GĐ3       ▲ nộp
 ```
 
 ## 14. Quy trình Git chống conflict
@@ -819,7 +817,7 @@ Phi    GĐ0 [Maven]│Mạng,MySQL,Login│Sảnh,Phòng,MấtKN    │Lưu tr�
 | Cập nhật UI từ luồng mạng | Lỗi JavaFX, giao diện đơ | `MessageBus` luôn chuyển callback sang FX thread |
 | Một người trễ việc | Người kia bị chặn ở điểm hẹn | Mỗi bên có cách tự test độc lập (`FakePlayer`, dữ liệu giả, telnet); cắt FE mức X trước |
 | Docker/MySQL khó cài trên máy demo | **Không đăng nhập được = không chơi với người được** (chơi với máy vẫn được nhờ chế độ khách) | Chỉ máy chạy server cần MySQL; cài và chạy thử Docker trên máy demo ngay GĐ1; chuẩn bị sẵn tài khoản demo trong `schema.sql`; ghi hướng dẫn cài MySQL trực tiếp (không Docker) vào README làm phương án B |
-| Phi bị dồn việc ở GĐ1 (mạng + MySQL + đăng nhập) | Trễ điểm hẹn 17/11 | Hoàng không phụ thuộc đăng nhập ở GĐ1 (test bằng `FakePlayer`); nếu trễ thì lùi 1.P.7 (giao diện đăng ký) sang 18/11, giữ `LOGIN` chạy được trước |
+| Phi bị dồn việc ở GĐ1 (mạng + MySQL + đăng nhập) | Trễ điểm hẹn cuối GĐ1 | Hoàng không phụ thuộc đăng nhập ở GĐ1 (test bằng `FakePlayer`); nếu trễ thì lùi 1.P.7 (giao diện đăng ký) sang đầu GĐ2, giữ `LOGIN` chạy được trước |
 
 ## 17. Việc còn mở (cần chốt ở GĐ0)
 
