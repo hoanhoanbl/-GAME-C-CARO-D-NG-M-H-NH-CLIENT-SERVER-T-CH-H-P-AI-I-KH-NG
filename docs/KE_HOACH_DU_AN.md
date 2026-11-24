@@ -821,8 +821,8 @@ Phi    GĐ0 [Maven]│Mạng,MySQL,Login│Sảnh,Phòng,MấtKN    │Lưu tr�
 
 ## 17. Việc còn mở (cần chốt ở GĐ0)
 
-- [x] Luật thắng: **giữ D5** (5 quân trở lên liên tiếp, không áp dụng luật chặn hai đầu).
+- [ ] Luật thắng: giữ D5 (5 quân trở lên, không chặn hai đầu) hay áp dụng luật chặn hai đầu?
 - [x] Có đăng nhập không? → **Có**, bắt buộc trước khi vào sảnh (D10). MySQL vì vậy thành bắt buộc (D13).
 - [x] Chơi với máy có cho khách chưa đăng nhập không? → **Có**. Chơi với người mới phải đăng nhập (D10).
-- [x] FE-22 (UDP tìm server): **giữ mức X**. Nhập tay IP vẫn dùng được, broadcast dễ bị firewall/wifi trường chặn; làm ở GĐ3 nếu kịp.
-- [x] Merge: **qua Pull Request**, người còn lại review trước khi vào `main`.
+- [ ] FE-22 (UDP tìm server) để mức X hay nâng lên S (vì đề cương có ghi)?
+- [ ] Merge qua Pull Request hay merge local?
