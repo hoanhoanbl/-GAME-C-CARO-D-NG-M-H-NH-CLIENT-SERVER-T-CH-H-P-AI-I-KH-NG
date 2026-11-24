@@ -674,8 +674,8 @@ Mỗi việc có mã `GĐ.người.số` (ví dụ `1.H.2`) để ghi vào commi
 | 0.P.1 | Tạo `caro-parent` + 3 module, cấu hình JavaFX, JUnit 5, `.gitignore`, `README.md` cách chạy | P | `mvn clean package` chạy được |
 | 0.P.2 | Tạo khung rỗng (chỉ khai báo class, method trả về mặc định) mọi file **của P** ở mục 8 | P | Build được |
 | 0.H.1 | Tạo khung rỗng mọi file **của H** ở mục 8, kể cả `game.fxml` có `fx:include` tới `chat.fxml` | H | Build được |
-| 0.HP.2 | Viết 3 interface hợp đồng (`Player`, `GameEndListener`, `MatchRecorder`) **cùng nhau, một commit** | H + P | Merge vào `main` |
-| 0.HP.3 | Mỗi người push khung lên `main` theo thứ tự: P (Maven) → H → P | H + P | `main` build được, có đủ file ở mục 8 |
+| 0.HP.2 | Viết 3 interface hợp đồng (`Player`, `GameEndListener`, `MatchRecorder`) **cùng nhau, một commit** | H + P | Merge vào `dev` |
+| 0.HP.3 | Mỗi người push khung lên `dev` theo thứ tự: P (Maven) → H → P | H + P | `dev` build được, có đủ file ở mục 8 |
 
 **Kết thúc GĐ0:** mọi file trong mục 8 đã tồn tại. Từ đây mỗi người chỉ sửa file của mình, nên gần như không còn conflict.
 
@@ -752,16 +752,16 @@ Phi    GĐ0 [Maven]│Mạng,MySQL,Login│Sảnh,Phòng,MấtKN    │Lưu tr�
 
 ## 14. Quy trình Git chống conflict
 
-1. **`main` luôn build được.** Sau GĐ0 không push thẳng lên `main`.
+1. **`dev` là nhánh làm việc (mặc định), luôn build được.** Sau GĐ0 không push thẳng lên `dev`. **`main` là nhánh ổn định:** chỉ đẩy từ `dev` sang khi đã chạy ổn (cuối mỗi mốc M2, M3 và lúc nộp), không ai làm việc trực tiếp trên `main`.
 2. **Nhánh:** `hoang/fe-09-game-session`, `phi/fe-07-lobby`. Một nhánh một FE, sống ≤ 3 ngày.
 3. **Commit:** `FE-09: kiểm tra nước đi đúng lượt`. Mỗi commit một ý.
 4. **Trước khi merge:**
    ```bash
    git fetch origin
-   git rebase origin/main
+   git rebase origin/dev
    mvn clean test
    ```
-   Rồi merge vào `main` (qua Pull Request để người kia xem nhanh, hoặc merge local nếu cả hai đồng ý).
+   Rồi merge vào `dev` (qua Pull Request để người kia xem nhanh, hoặc merge local nếu cả hai đồng ý).
 5. **Chỉ sửa file của mình** theo bảng mục 8.
 6. **File hợp đồng** (`Player`, `GameEndListener`, `MatchRecorder`, `Command`, các `pom.xml`, `Screen`, `ErrorMessages`, 3 dòng đăng ký controller trong `CaroServer`):
    - Nhắn người kia trước.
@@ -774,7 +774,7 @@ Phi    GĐ0 [Maven]│Mạng,MySQL,Login│Sảnh,Phòng,MấtKN    │Lưu tr�
 
 ## 15. Định nghĩa hoàn thành và kiểm thử
 
-**Một việc được coi là xong khi:** chạy được, có test (với lớp logic), đã merge vào `main`, `main` vẫn build, và người kia đã chạy thử ít nhất một lần.
+**Một việc được coi là xong khi:** chạy được, có test (với lớp logic), đã merge vào `dev`, `dev` vẫn build, và người kia đã chạy thử ít nhất một lần.
 
 ### Kịch bản kiểm thử hệ thống (FE-24)
 
@@ -825,4 +825,4 @@ Phi    GĐ0 [Maven]│Mạng,MySQL,Login│Sảnh,Phòng,MấtKN    │Lưu tr�
 - [x] Có đăng nhập không? → **Có**, bắt buộc trước khi vào sảnh (D10). MySQL vì vậy thành bắt buộc (D13).
 - [x] Chơi với máy có cho khách chưa đăng nhập không? → **Có**. Chơi với người mới phải đăng nhập (D10).
 - [x] FE-22 (UDP tìm server): **giữ mức X**. Nhập tay IP vẫn dùng được, broadcast dễ bị firewall/wifi trường chặn; làm ở GĐ3 nếu kịp.
-- [x] Merge: **qua Pull Request**, người còn lại review trước khi vào `main`.
+- [x] Merge: **qua Pull Request**, người còn lại review trước khi vào `dev`.
