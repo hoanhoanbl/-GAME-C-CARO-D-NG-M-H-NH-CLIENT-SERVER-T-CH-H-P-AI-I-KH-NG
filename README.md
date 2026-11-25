@@ -8,8 +8,8 @@
 
 ### 🔹 Mô hình kiến trúc
 Dự án được xây dựng theo mô hình **Client - Server** tách biệt:
-- **`CaroServerProject`**: Máy chủ backend viết bằng Java Core, kết nối cơ sở dữ liệu MySQL qua JDBC, lắng nghe trên cổng **`5000`**.
-- **`CaroClientProject`**: Giao diện người dùng JavaFX (FXML + CSS), tương tác người dùng và gửi nhận thông điệp qua Socket TCP.
+- **`caro-server`**: Máy chủ backend viết bằng Java Core, kết nối cơ sở dữ liệu MySQL qua JDBC, lắng nghe trên cổng **`5000`**.
+- **`caro-client`**: Giao diện người dùng JavaFX (FXML + CSS), tương tác người dùng và gửi nhận thông điệp qua Socket TCP.
 
 ```
 [CaroClient (JavaFX)]  <--- Socket TCP (Port 5000) --->  [CaroServer]  <--- JDBC --->  [MySQL (gamecocaro)]
@@ -50,7 +50,7 @@ Dự án được xây dựng theo mô hình **Client - Server** tách biệt:
 #### 👉 Cách A: Dùng XAMPP (Phổ biến)
 1. Mở **XAMPP Control Panel** -> Bấm **Start** ở module **MySQL** (và **Apache**).
 2. Mở trình duyệt vào: `http://localhost/phpmyadmin`
-3. Chọn tab **SQL**, copy toàn bộ nội dung file **`CaroServerProject/db/schema.sql`** dán vào rồi bấm **Go** (hoặc tạo database tên `gamecocaro` rồi import file `schema.sql`).
+3. Chọn tab **SQL**, copy toàn bộ nội dung file **`db/schema.sql`** dán vào rồi bấm **Go** (hoặc tạo database tên `gamecocaro` rồi import file `schema.sql`).
 
 #### 👉 Cách B: Dùng Docker
 Nếu máy có cài Docker, mở Terminal chạy 2 lệnh sau:
@@ -59,13 +59,13 @@ Nếu máy có cài Docker, mở Terminal chạy 2 lệnh sau:
 docker run -d --name caro-mysql -p 3306:3306 -e MYSQL_DATABASE=gamecocaro -e MYSQL_ALLOW_EMPTY_PASSWORD=yes mysql:8.4
 
 # 2. Import dữ liệu bảng vào container
-docker exec -i caro-mysql mysql -u root gamecocaro < CaroServerProject/db/schema.sql
+docker exec -i caro-mysql mysql -u root gamecocaro < db/schema.sql
 ```
 
 ---
 
-### Bước 2: Chạy Server (`CaroServerProject`)
-1. Mở IntelliJ IDEA -> chọn **Open** -> chọn thư mục **`CaroServerProject`**.
+### Bước 2: Chạy Server (`caro-server`)
+1. Mở IntelliJ IDEA -> chọn **Open** -> chọn **thư mục gốc của repo** (file `pom.xml` cha, gồm 3 module `caro-common`, `caro-server`, `caro-client`). Lần đầu chạy `mvn install -DskipTests` ở thư mục gốc để module chung được cài.
 2. Tìm đến file: `src/main/java/vn/edu/vku/caro/server/CaroServer.java`.
 3. Nhấp chuột phải vào file -> Chọn **Run 'CaroServer.main()'** (hoặc phím tắt `Ctrl + Shift + F10`).
 4. Quan sát Console bên dưới in ra:
@@ -77,12 +77,12 @@ docker exec -i caro-mysql mysql -u root gamecocaro < CaroServerProject/db/schema
 
 ---
 
-### Bước 3: Chạy Client (`CaroClientProject`)
-1. Mở cửa sổ IntelliJ IDEA mới (hoặc mở cửa sổ hiện tại) -> chọn **Open** -> chọn thư mục **`CaroClientProject`**.
+### Bước 3: Chạy Client (`caro-client`)
+1. Dùng cùng project đã mở ở Bước 2 (thư mục gốc repo), hoặc mở thêm một cửa sổ mới.
 2. Chạy Client bằng 1 trong các cách sau:
    - **Cách 1**: Mở tab **Maven** ở mép phải -> `caro-client` -> `Plugins` -> `javafx` -> nhấp đúp vào **`javafx:run`**.
    - **Cách 2**: Chạy file `src/main/java/vn/edu/vku/caro/client/app/CaroClientApp.java` (chọn **Run**).
-   - **Cách 3**: Mở Terminal gõ: `mvn javafx:run`.
+   - **Cách 3**: Mở Terminal gõ: `mvn -pl caro-client javafx:run` (chạy từ thư mục gốc).
 3. Cửa sổ giao diện game JavaFX sẽ hiển thị trên màn hình.
 
 ---
