@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="vn.edu.vku.caro.client.controller.LobbyController"
+      alignment="CENTER" spacing="16"
+      stylesheets="@css/base.css, @css/lobby.css"
+      style="-fx-background-color: #f7fafc; -fx-padding: 30;">
+
+    <Label text="SẢNH CHỜ (LOBBY)" style="-fx-font-size: 26px; -fx-font-weight: bold; -fx-text-fill: #2b6cb0;"/>
+    
+    <Label fx:id="welcomeLabel" text="Xin chào người chơi!" style="-fx-font-size: 16px; -fx-text-fill: #2d3748;"/>
+
+    <HBox alignment="CENTER" spacing="12">
+        <Button text="Màn hình kế tiếp" onAction="#next"
+                style="-fx-pref-height: 38px; -fx-background-color: #3182ce; -fx-text-fill: white; -fx-font-weight: bold; -fx-cursor: hand; -fx-background-radius: 6;"/>
+        <Button text="Đăng xuất" onAction="#handleLogout"
+                style="-fx-pref-height: 38px; -fx-background-color: #e53e3e; -fx-text-fill: white; -fx-font-weight: bold; -fx-cursor: hand; -fx-background-radius: 6;"/>
+    </HBox>
+</VBox>

@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="vn.edu.vku.caro.client.controller.ConnectController"
+      alignment="CENTER" spacing="18"
+      stylesheets="@css/base.css, @css/connect.css"
+      style="-fx-background-color: #f4f6f9; -fx-padding: 30;">
+
+    <VBox alignment="CENTER" spacing="8">
+        <Label text="GAME CỜ CARO ONLINE" style="-fx-font-size: 26px; -fx-font-weight: bold; -fx-text-fill: #1a365d;"/>
+        <Label text="Vui lòng kết nối tới Game Server trước khi đăng nhập" style="-fx-font-size: 14px; -fx-text-fill: #718096;"/>
+    </VBox>
+
+    <VBox spacing="14" maxWidth="380"
+          style="-fx-background-color: white; -fx-padding: 25; -fx-background-radius: 10; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 10, 0, 0, 5);">
+
+        <VBox spacing="6">
+            <Label text="Địa chỉ Server (Host):" style="-fx-font-weight: bold; -fx-text-fill: #2d3748;"/>
+            <TextField fx:id="hostField" promptText="localhost" text="localhost"
+                       style="-fx-pref-height: 38px; -fx-font-size: 14px;"/>
+        </VBox>
+
+        <VBox spacing="6">
+            <Label text="Cổng (Port):" style="-fx-font-weight: bold; -fx-text-fill: #2d3748;"/>
+            <TextField fx:id="portField" promptText="5000" text="5000"
+                       style="-fx-pref-height: 38px; -fx-font-size: 14px;"/>
+        </VBox>
+
+        <Label fx:id="statusLabel" wrapText="true" alignment="CENTER" maxWidth="Infinity"
+               style="-fx-text-fill: #e53e3e; -fx-font-size: 13px;"/>
+
+        <Button text="Kết nối Server" onAction="#handleConnect" maxWidth="Infinity"
+                style="-fx-pref-height: 42px; -fx-background-color: #3182ce; -fx-text-fill: white; -fx-font-size: 15px; -fx-font-weight: bold; -fx-cursor: hand; -fx-background-radius: 6;"/>
+
+        <Button text="Màn hình kế tiếp (Bỏ qua)" onAction="#next" maxWidth="Infinity"
+                style="-fx-pref-height: 34px; -fx-background-color: transparent; -fx-text-fill: #718096; -fx-cursor: hand; -fx-underline: true;"/>
+    </VBox>
+
+</VBox>
