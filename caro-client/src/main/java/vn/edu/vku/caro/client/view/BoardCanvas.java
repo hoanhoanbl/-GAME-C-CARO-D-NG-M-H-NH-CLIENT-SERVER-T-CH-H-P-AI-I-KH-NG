@@ -3,6 +3,7 @@ package vn.edu.vku.caro.client.view;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
+import javafx.scene.shape.StrokeLineCap;
 import javafx.scene.text.Font;
 import javafx.scene.text.TextAlignment;
 import vn.edu.vku.caro.client.model.GameModel;
@@ -54,6 +55,7 @@ public class BoardCanvas extends Canvas {
             g.setFill(Color.web("#ffe066", 0.7));
             g.fillRect(PAD + c[1] * CELL, PAD + c[0] * CELL, CELL, CELL);
         }
+        drawWinLine(g);
         int[] last = model.lastMove();
         if (last != null) {
             g.setStroke(Color.web("#e03131"));
@@ -70,5 +72,18 @@ public class BoardCanvas extends Canvas {
                 g.fillText(s.name(), PAD + c * CELL + CELL / 2, PAD + r * CELL + CELL / 2 + 10);
             }
         }
+    }
+
+    /** Gạch một đường đậm xuyên qua các ô thắng, từ ô đầu tới ô cuối. */
+    private void drawWinLine(GraphicsContext g) {
+        java.util.List<int[]> line = model.winLine();
+        if (line.size() < 2) return;
+        int[] a = line.get(0);
+        int[] b = line.get(line.size() - 1);
+        g.setStroke(Color.web("#f08c00"));
+        g.setLineWidth(5);
+        g.setLineCap(StrokeLineCap.ROUND);
+        g.strokeLine(PAD + a[1] * CELL + CELL / 2, PAD + a[0] * CELL + CELL / 2,
+                PAD + b[1] * CELL + CELL / 2, PAD + b[0] * CELL + CELL / 2);
     }
 }

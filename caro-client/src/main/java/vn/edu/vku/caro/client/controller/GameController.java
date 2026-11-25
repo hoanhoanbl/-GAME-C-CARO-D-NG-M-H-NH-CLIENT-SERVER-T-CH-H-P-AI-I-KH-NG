@@ -11,6 +11,8 @@ import vn.edu.vku.caro.client.model.GameInfo;
 import vn.edu.vku.caro.client.model.GameModel;
 import vn.edu.vku.caro.client.net.MessageBus;
 import vn.edu.vku.caro.client.view.BoardCanvas;
+import vn.edu.vku.caro.client.view.ResultDialog;
+import vn.edu.vku.caro.common.model.GameResult;
 import vn.edu.vku.caro.common.model.Symbol;
 import vn.edu.vku.caro.common.protocol.Command;
 import vn.edu.vku.caro.common.protocol.Message;
@@ -60,7 +62,28 @@ public class GameController implements Initializable {
         statusLabel.textProperty().bind(model.statusMessage);
 
         boardCanvas.setOnCellClicked(this::onCellClicked);
-        if (!demo) subscribeWhileShown();
+        if (!demo) {
+            subscribeWhileShown();
+            model.result.addListener((o, a, result) -> { if (result != null) showResult(result); });
+        }
+    }
+
+    private void showResult(GameResult result) {
+        boolean guest = ClientSession.get().isGuest();
+        ResultDialog.show(boardCanvas.getScene().getWindow(), result, model.mySymbol.get(), guest, choice -> {
+            switch (choice) {
+                case REMATCH -> {
+                    // Server xử lý REMATCH ở 3.H.6; tới lúc đó sẽ trả ERROR và hiện ở statusLabel.
+                    ClientSession.get().send(new Message("REMATCH"));
+                    model.statusMessage.set("Đã gửi lời mời chơi lại, đang chờ đối thủ...");
+                }
+                case LOBBY -> {
+                    ClientSession.get().send(new Message("BACK_TO_LOBBY"));
+                    SceneManager.get().show(guest ? Screen.LOGIN : Screen.LOBBY);
+                }
+                case STAY -> { }
+            }
+        });
     }
 
     /** Đăng ký nhận thông điệp; tự hủy khi cửa sổ chuyển sang màn hình khác để không xử lý trùng. */
