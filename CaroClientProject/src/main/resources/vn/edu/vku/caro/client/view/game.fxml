@@ -1,11 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
+<?import vn.edu.vku.caro.client.view.BoardCanvas?>
 
-<VBox xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
-      fx:controller="vn.edu.vku.caro.client.controller.GameController" alignment="CENTER" spacing="12">
-    <Label text="Bàn cờ" style="-fx-font-size: 22px;"/>
-    
-    <Button text="Về màn hình đầu" onAction="#back"/>
-    <fx:include source="chat.fxml"/>
-</VBox>
+<HBox xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="vn.edu.vku.caro.client.controller.GameController" styleClass="game-root" spacing="12">
+    <VBox alignment="CENTER" spacing="8" HBox.hgrow="ALWAYS">
+        <Label fx:id="turnLabel" styleClass="turn-label"/>
+        <Label fx:id="infoLabel"/>
+        <BoardCanvas fx:id="boardCanvas"/>
+    </VBox>
+    <VBox spacing="8" prefWidth="220">
+        <Button text="Về màn hình đầu" onAction="#back"/>
+        <fx:include source="chat.fxml"/>
+    </VBox>
+</HBox>
