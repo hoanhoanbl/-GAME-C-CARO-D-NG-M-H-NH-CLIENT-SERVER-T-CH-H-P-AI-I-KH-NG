@@ -9,7 +9,10 @@ import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import vn.edu.vku.caro.common.model.Board;
+import vn.edu.vku.caro.common.model.EndReason;
+import vn.edu.vku.caro.common.model.GameResult;
 import vn.edu.vku.caro.common.model.Symbol;
+import vn.edu.vku.caro.common.protocol.Message;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -24,6 +27,10 @@ public class GameModel {
     public final ObjectProperty<Symbol> mySymbol = new SimpleObjectProperty<>(Symbol.X);
     public final StringProperty opponentName = new SimpleStringProperty("");
     public final BooleanProperty finished = new SimpleBooleanProperty(false);
+    /** Kết quả khi ván kết thúc theo GAME_OVER; null khi đang chơi. */
+    public final ObjectProperty<GameResult> result = new SimpleObjectProperty<>();
+    /** Thông báo ngắn cho người chơi (lỗi từ server...), rỗng nếu không có. */
+    public final StringProperty statusMessage = new SimpleStringProperty("");
     public final IntegerProperty revision = new SimpleIntegerProperty(0);
 
     private int[] lastMove;
@@ -47,6 +54,31 @@ public class GameModel {
         winLine = parseCells(cells);
         finished.set(true);
         bump();
+    }
+
+    /** Áp dụng GAME_OVER|winner|reason|cells: winner là X/O/DRAW. Ghi lại kết quả để View hiện hộp thoại. */
+    public void applyGameOver(String winner, String reason, String cells) {
+        Symbol w = "X".equals(winner) ? Symbol.X : "O".equals(winner) ? Symbol.O : null;
+        List<int[]> line = parseCells(cells);
+        applyGameOver(cells);                       // đặt winLine + finished trước khi báo kết quả
+        result.set(new GameResult(w, EndReason.valueOf(reason), line));
+    }
+
+    /** MOVED|symbol|row|col|next. */
+    public void applyMoved(Message m) {
+        Symbol next = m.arg(3).isEmpty() ? null : Symbol.valueOf(m.arg(3));
+        applyMoved(Symbol.valueOf(m.arg(0)), Integer.parseInt(m.arg(1)), Integer.parseInt(m.arg(2)), next);
+        statusMessage.set("");
+    }
+
+    /** GAME_OVER|winner|reason|cells. */
+    public void applyGameOver(Message m) {
+        applyGameOver(m.arg(0), m.arg(1), m.arg(2));
+    }
+
+    /** ERROR|code|text: giữ lại để màn hình hiện cho người chơi. */
+    public void applyError(Message m) {
+        statusMessage.set(m.argCount() > 1 ? m.arg(1) : m.arg(0));
     }
 
     public static List<int[]> parseCells(String cells) {

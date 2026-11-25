@@ -1,3 +1,4 @@
 /* game.css */
 .game-root { -fx-padding: 12; }
 .turn-label { -fx-font-size: 20px; -fx-font-weight: bold; }
+.status-label { -fx-text-fill: #c92a2a; }

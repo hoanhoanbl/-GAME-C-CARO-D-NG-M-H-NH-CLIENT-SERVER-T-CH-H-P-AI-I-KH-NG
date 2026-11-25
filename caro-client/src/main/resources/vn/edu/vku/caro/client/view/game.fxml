@@ -8,6 +8,7 @@
     <VBox alignment="CENTER" spacing="8" HBox.hgrow="ALWAYS">
         <Label fx:id="turnLabel" styleClass="turn-label"/>
         <Label fx:id="infoLabel"/>
+        <Label fx:id="statusLabel" styleClass="status-label"/>
         <BoardCanvas fx:id="boardCanvas"/>
     </VBox>
     <VBox spacing="8" prefWidth="220">

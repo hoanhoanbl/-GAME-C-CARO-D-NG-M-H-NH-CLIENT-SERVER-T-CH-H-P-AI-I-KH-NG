@@ -9,23 +9,33 @@ import vn.edu.vku.caro.client.app.Screen;
 import vn.edu.vku.caro.client.model.ClientSession;
 import vn.edu.vku.caro.client.model.GameInfo;
 import vn.edu.vku.caro.client.model.GameModel;
+import vn.edu.vku.caro.client.net.MessageBus;
 import vn.edu.vku.caro.client.view.BoardCanvas;
 import vn.edu.vku.caro.common.model.Symbol;
+import vn.edu.vku.caro.common.protocol.Command;
+import vn.edu.vku.caro.common.protocol.Message;
 
 import java.net.URL;
 import java.util.ResourceBundle;
+import java.util.function.Consumer;
 
 /**
- * Khung màn hình ván cờ (1.H.4). Chưa nối mạng: nếu chưa có GameInfo từ server thì chạy chế độ thử
- * với dữ liệu giả, hai bên luân phiên đi trên cùng máy. Nối MessageBus ở 2.H.2.
+ * Màn hình ván cờ. Nhận MOVED, GAME_OVER, ERROR từ MessageBus và cập nhật {@link GameModel}; View tự vẽ lại
+ * qua binding (R3). Click ô → gửi MOVE|row|col, không tự đặt quân: chờ server báo MOVED (R7).
+ * Nếu chưa có GameInfo (mở thẳng bằng -Dcaro.screen=GAME) thì chạy chế độ thử, hai bên luân phiên trên một máy.
  */
 public class GameController implements Initializable {
     @FXML private BoardCanvas boardCanvas;
     @FXML private Label turnLabel;
     @FXML private Label infoLabel;
+    @FXML private Label statusLabel;
 
     private final GameModel model = new GameModel();
     private boolean demo;
+
+    private final Consumer<Message> onMoved = m -> handle(m, model::applyMoved);
+    private final Consumer<Message> onGameOver = m -> handle(m, model::applyGameOver);
+    private final Consumer<Message> onError = m -> handle(m, model::applyError);
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
@@ -47,7 +57,41 @@ public class GameController implements Initializable {
             return model.isMyTurn() ? "Đến lượt bạn" : "Đang chờ đối thủ";
         }, model.currentTurn, model.finished, model.mySymbol));
 
+        statusLabel.textProperty().bind(model.statusMessage);
+
         boardCanvas.setOnCellClicked(this::onCellClicked);
+        if (!demo) subscribeWhileShown();
+    }
+
+    /** Đăng ký nhận thông điệp; tự hủy khi cửa sổ chuyển sang màn hình khác để không xử lý trùng. */
+    private void subscribeWhileShown() {
+        MessageBus bus = MessageBus.get();
+        bus.subscribe(Command.MOVED, onMoved);
+        bus.subscribe(Command.GAME_OVER, onGameOver);
+        bus.subscribe(Command.ERROR, onError);
+        boardCanvas.sceneProperty().addListener((o, oldScene, scene) -> {
+            if (scene != null) {
+                scene.windowProperty().addListener((o2, oldWin, win) -> {
+                    if (oldWin != null && win == null) unsubscribe();
+                });
+            }
+        });
+    }
+
+    private void unsubscribe() {
+        MessageBus bus = MessageBus.get();
+        bus.unsubscribe(Command.MOVED, onMoved);
+        bus.unsubscribe(Command.GAME_OVER, onGameOver);
+        bus.unsubscribe(Command.ERROR, onError);
+    }
+
+    /** Thông điệp sai định dạng không được làm hỏng màn hình: báo ra statusMessage. */
+    private void handle(Message m, Consumer<Message> apply) {
+        try {
+            apply.accept(m);
+        } catch (RuntimeException e) {
+            model.statusMessage.set("Thông điệp từ server không hợp lệ: " + m.format());
+        }
     }
 
     private void onCellClicked(int row, int col) {
@@ -57,7 +101,11 @@ public class GameController implements Initializable {
             model.applyMoved(me, row, col, me == Symbol.X ? Symbol.O : Symbol.X);
             return;
         }
-        // TODO 2.H.1/2.H.2: gửi MOVE|row|col qua ClientSession, chờ MOVED từ server.
+        if (!model.isMyTurn()) {
+            model.statusMessage.set("Chưa đến lượt bạn");
+            return;
+        }
+        ClientSession.get().send(new Message("MOVE", String.valueOf(row), String.valueOf(col)));
     }
 
     @FXML

@@ -1,7 +1,10 @@
 package vn.edu.vku.caro.client.model;
 
 import org.junit.jupiter.api.Test;
+import vn.edu.vku.caro.common.model.EndReason;
+import vn.edu.vku.caro.common.model.GameResult;
 import vn.edu.vku.caro.common.model.Symbol;
+import vn.edu.vku.caro.common.protocol.Message;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -46,5 +49,50 @@ public class GameModelTest {
     void parseCellsHandlesEmpty() {
         assertTrue(GameModel.parseCells("").isEmpty());
         assertTrue(GameModel.parseCells(null).isEmpty());
+    }
+
+    @Test
+    void movedMessageUpdatesBoardAndTurn() {
+        GameModel m = new GameModel();
+        m.applyMoved(Message.parse("MOVED|X|7|8|O"));
+        assertEquals(Symbol.X, m.board.get(7, 8));
+        assertEquals(Symbol.O, m.currentTurn.get());
+    }
+
+    @Test
+    void movedMessageWithEmptyNextKeepsTurn() {
+        GameModel m = new GameModel();
+        m.applyMoved(Message.parse("MOVED|X|0|0|"));
+        assertEquals(Symbol.X, m.board.get(0, 0));
+        assertEquals(Symbol.X, m.currentTurn.get());
+    }
+
+    @Test
+    void gameOverMessageFillsResultAndWinLine() {
+        GameModel m = new GameModel();
+        m.applyGameOver(Message.parse("GAME_OVER|O|FIVE|1,1;1,2;1,3;1,4;1,5"));
+        GameResult r = m.result.get();
+        assertEquals(Symbol.O, r.winner());
+        assertEquals(EndReason.FIVE, r.reason());
+        assertEquals(5, r.winLine().size());
+        assertTrue(m.finished.get());
+        assertEquals(5, m.winLine().size());
+    }
+
+    @Test
+    void gameOverDrawHasNoWinner() {
+        GameModel m = new GameModel();
+        m.applyGameOver(Message.parse("GAME_OVER|DRAW|FULL|"));
+        assertNull(m.result.get().winner());
+        assertEquals(EndReason.FULL, m.result.get().reason());
+    }
+
+    @Test
+    void errorMessageSetsStatusAndNextMoveClearsIt() {
+        GameModel m = new GameModel();
+        m.applyError(Message.parse("ERROR|NOT_YOUR_TURN|Chưa đến lượt bạn"));
+        assertEquals("Chưa đến lượt bạn", m.statusMessage.get());
+        m.applyMoved(Message.parse("MOVED|X|1|1|O"));
+        assertEquals("", m.statusMessage.get());
     }
 }
