@@ -8,11 +8,11 @@ model/     auth, player, room, game, bot, dao  (nghiệp vụ + truy cập MySQL
 messages/  hàm tạo chuỗi thông điệp gửi cho client
 ```
 
-Package `vn.edu.vku.caro.common` là bản sao dùng chung với CaroClientProject.
+Package `caro.common` là bản sao dùng chung với CaroClientProject.
 Sửa common ở đâu thì chép sang project còn lại (giữ hai bản giống hệt nhau).
 
 ## Chạy
-Trong IntelliJ: chạy `vn.edu.vku.caro.server.CaroServer` (hoặc `mvn exec:java`).
+Trong IntelliJ: chạy `caro.server.CaroServer` (hoặc `mvn exec:java`).
 Cổng mặc định 5000, truyền cổng khác qua tham số dòng lệnh.
 
 ## Cơ sở dữ liệu (XAMPP)

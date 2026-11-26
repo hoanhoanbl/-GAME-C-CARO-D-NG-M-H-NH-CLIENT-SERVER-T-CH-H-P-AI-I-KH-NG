@@ -104,10 +104,10 @@ Màn hình chuyển theo `app/SceneManager` (H): `CONNECT → LOGIN → LOBBY �
 ├── docker-compose.yml                       P
 ├── db/schema.sql                            P
 ├── docs/                                    H + P
-├── caro-common/src/main/java/vn/edu/vku/caro/common/
+├── caro-common/src/main/java/caro/common/
 │   ├── model/        Symbol, Board, WinChecker, GameResult, EndReason            H
 │   └── protocol/     Command, Message, Protocol                                  P
-├── caro-server/src/main/java/vn/edu/vku/caro/server/
+├── caro-server/src/main/java/caro/server/
 │   ├── CaroServer.java, ServerConfig.java                                        P
 │   ├── net/          ClientHandler, CommandDispatcher, DiscoveryResponder        P
 │   ├── controller/   CommandController (interface),
@@ -126,7 +126,7 @@ Màn hình chuyển theo `app/SceneManager` (H): `CONNECT → LOGIN → LOBBY �
 │   └── view/         AuthMessages, LobbyMessages, ErrorMessages                  P
 │                     GameMessages                                                H
 └── caro-client/
-    ├── src/main/java/vn/edu/vku/caro/client/
+    ├── src/main/java/caro/client/
     │   ├── app/          CaroClientApp, SceneManager, Screen                     H
     │   ├── net/          NetworkClient, MessageBus                               P
     │   ├── model/        ClientSession, GameInfo, LobbyModel, RoomInfo           P
@@ -135,13 +135,13 @@ Màn hình chuyển theo `app/SceneManager` (H): `CONNECT → LOGIN → LOBBY �
     │   └── controller/   ConnectController, LoginController,
     │                     LobbyController, WaitingController                      P
     │                     GameController, ChatController                          H
-    └── src/main/resources/vn/edu/vku/caro/client/view/
+    └── src/main/resources/caro/client/view/
         ├── connect.fxml, login.fxml, lobby.fxml, waiting.fxml                    P
         ├── game.fxml, chat.fxml                                                  H
         └── css/  base.css, game.css, chat.css (H) · connect.css, login.css, lobby.css (P)
 ```
 
-Đường dẫn rút gọn trong các bảng dưới: `…/` = `src/main/java/vn/edu/vku/caro/`, `res/` = `src/main/resources/vn/edu/vku/caro/client/view/`.
+Đường dẫn rút gọn trong các bảng dưới: `…/` = `src/main/java/caro/`, `res/` = `src/main/resources/caro/client/view/`.
 
 ### 8.2 caro-common (Model dùng chung + giao thức)
 

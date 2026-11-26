@@ -66,7 +66,7 @@ docker exec -i caro-mysql mysql -u root gamecocaro < CaroServerProject/db/schema
 
 ### Bước 2: Chạy Server (`CaroServerProject`)
 1. Mở IntelliJ IDEA -> chọn **Open** -> chọn thư mục **`CaroServerProject`**.
-2. Tìm đến file: `src/main/java/vn/edu/vku/caro/server/CaroServer.java`.
+2. Tìm đến file: `src/main/java/caro/server/CaroServer.java`.
 3. Nhấp chuột phải vào file -> Chọn **Run 'CaroServer.main()'** (hoặc phím tắt `Ctrl + Shift + F10`).
 4. Quan sát Console bên dưới in ra:
    ```text
@@ -81,7 +81,7 @@ docker exec -i caro-mysql mysql -u root gamecocaro < CaroServerProject/db/schema
 1. Mở cửa sổ IntelliJ IDEA mới (hoặc mở cửa sổ hiện tại) -> chọn **Open** -> chọn thư mục **`CaroClientProject`**.
 2. Chạy Client bằng 1 trong các cách sau:
    - **Cách 1**: Mở tab **Maven** ở mép phải -> `caro-client` -> `Plugins` -> `javafx` -> nhấp đúp vào **`javafx:run`**.
-   - **Cách 2**: Chạy file `src/main/java/vn/edu/vku/caro/client/app/CaroClientApp.java` (chọn **Run**).
+   - **Cách 2**: Chạy file `src/main/java/caro/client/app/CaroClientApp.java` (chọn **Run**).
    - **Cách 3**: Mở Terminal gõ: `mvn javafx:run`.
 3. Cửa sổ giao diện game JavaFX sẽ hiển thị trên màn hình.
 

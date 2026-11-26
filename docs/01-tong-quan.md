@@ -48,7 +48,7 @@ Game cờ caro bàn 15x15 chơi trong mạng LAN theo mô hình Client-Server.
 | D8 | Thoát giữa ván | Người còn lại **thắng**, lý do `LEFT` |
 | D9 | Tọa độ | `row`, `col` từ 0 đến 14, gốc ở góc trên bên trái |
 | D10 | Tài khoản | **Chơi với người phải đăng nhập** (vào sảnh, tạo/vào phòng, chat). **Chơi với máy không cần đăng nhập**: khách bấm "Chơi với máy" ngay ở màn hình đăng nhập, server đặt tên `Khách-<số>`; ván của khách không lưu vào CSDL. Người đã đăng nhập vẫn chơi với máy được từ sảnh, và ván đó được lưu. `username` 3–16 ký tự chữ/số/`_`, không trùng; mật khẩu 6–32 ký tự. Một tài khoản chỉ đăng nhập ở một nơi cùng lúc |
-| D11 | Package gốc, mô hình | `vn.edu.vku.caro`; mỗi module chia package theo **MVC** (`model`, `view`, `controller`) + hạ tầng (`net`, `app`), xem mục 7–8 |
+| D11 | Package gốc, mô hình | `caro`; mỗi module chia package theo **MVC** (`model`, `view`, `controller`) + hạ tầng (`net`, `app`), xem mục 7–8 |
 | D12 | Lưu mật khẩu | Băm bằng **PBKDF2WithHmacSHA256** (có sẵn trong Java, không cần thư viện) với salt ngẫu nhiên 16 byte, 65 536 vòng. Không bao giờ lưu hay ghi log mật khẩu thô |
 | D13 | MySQL | **Bắt buộc** vì đăng nhập cần CSDL. DB không kết nối được → server từ chối đăng nhập với `ERROR\|DB_UNAVAILABLE`, nhưng khách vẫn chơi với máy được |
 
