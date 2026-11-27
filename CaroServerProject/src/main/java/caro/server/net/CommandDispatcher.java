@@ -2,6 +2,7 @@ package caro.server.net;
 
 import caro.common.protocol.Command;
 import caro.common.protocol.Message;
+import caro.server.controller.CommandController;
 import caro.server.messages.AuthMessages;
 import caro.server.messages.ErrorMessages;
 import caro.server.messages.LobbyMessages;
@@ -10,9 +11,13 @@ import caro.server.model.auth.AuthService.AuthException;
 import caro.server.model.dao.PlayerDao.PlayerRecord;
 import caro.server.model.player.RemotePlayer;
 
+import java.util.EnumMap;
+import java.util.Map;
+
 /** Nhận lệnh từ client, kiểm tra trạng thái, gọi service tương ứng. */
 public class CommandDispatcher {
     private final AuthService auth;
+    private final Map<Command, CommandController> controllers = new EnumMap<>(Command.class);
 
     public CommandDispatcher(AuthService auth) { this.auth = auth; }
 
@@ -33,11 +38,23 @@ public class CommandDispatcher {
             case LOGIN -> login(p, msg);
             case LOGOUT -> logout(p);
             default -> {
+                CommandController c = controllers.get(cmd);
                 if (!p.isLoggedIn()) p.send(ErrorMessages.error("NOT_LOGGED_IN", "Bạn chưa đăng nhập"));
+                else if (c != null) c.handle(p, msg);
                 else p.send(ErrorMessages.error("BAD_MESSAGE", "Lệnh chưa được hỗ trợ: " + cmd));
             }
         }
         return true;
+    }
+
+    /** Đăng ký một controller cho các lệnh của nó. Mỗi lệnh chỉ thuộc một controller. */
+    public void register(CommandController c) {
+        for (Command cmd : c.commands()) {
+            CommandController old = controllers.putIfAbsent(cmd, c);
+            if (old != null) {
+                throw new IllegalStateException("Lệnh " + cmd + " đã được " + old.getClass().getSimpleName() + " xử lý");
+            }
+        }
     }
 
     private void register(RemotePlayer p, Message msg) {
