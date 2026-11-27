@@ -32,7 +32,7 @@
         <Label fx:id="statusLabel" wrapText="true" alignment="CENTER" maxWidth="Infinity"
                style="-fx-text-fill: #e53e3e; -fx-font-size: 13px;"/>
 
-        <Button text="Kết nối Server" onAction="#handleConnect" maxWidth="Infinity"
+        <Button fx:id="connectButton" text="Kết nối Server" onAction="#handleConnect" maxWidth="Infinity"
                 style="-fx-pref-height: 42px; -fx-background-color: #3182ce; -fx-text-fill: white; -fx-font-size: 15px; -fx-font-weight: bold; -fx-cursor: hand; -fx-background-radius: 6;"/>
 
         <Button text="Màn hình kế tiếp (Bỏ qua)" onAction="#next" maxWidth="Infinity"

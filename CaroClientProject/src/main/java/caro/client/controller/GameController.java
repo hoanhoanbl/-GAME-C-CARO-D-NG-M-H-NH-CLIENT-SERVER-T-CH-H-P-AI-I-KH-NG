@@ -2,14 +2,12 @@ package caro.client.controller;
 
 import javafx.beans.binding.Bindings;
 import javafx.fxml.FXML;
-import javafx.scene.Scene;
 import javafx.scene.control.Label;
 import caro.client.app.Screen;
 import caro.client.app.SceneManager;
 import caro.client.model.ClientSession;
 import caro.client.model.GameInfo;
 import caro.client.model.GameModel;
-import caro.client.net.MessageBus;
 import caro.client.view.BoardCanvas;
 import caro.client.view.ResultDialog;
 import caro.common.model.EndReason;
@@ -19,7 +17,6 @@ import caro.common.protocol.Message;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Consumer;
 
 /**
  * Màn hình ván cờ: click ô → gửi {@code MOVE}; nhận {@code MOVED}, {@code ERROR}, {@code GAME_OVER}
@@ -33,10 +30,7 @@ public class GameController {
     @FXML private Label errorLabel;
 
     private final GameModel model = new GameModel();
-    private final Consumer<Message> onMoved = this::handleMoved;
-    private final Consumer<Message> onError = this::handleError;
-    private final Consumer<Message> onGameOver = this::handleGameOver;
-    private boolean subscribed;
+    private final BusSubscriptions subscriptions = new BusSubscriptions();
 
     @FXML
     public void initialize() {
@@ -59,22 +53,11 @@ public class GameController {
                 this::turnText, model.currentTurn, model.mySymbol, model.outcome));
         errorLabel.textProperty().bind(model.errorMessage);
 
-        MessageBus.get().subscribe(Command.MOVED, onMoved);
-        MessageBus.get().subscribe(Command.ERROR, onError);
-        MessageBus.get().subscribe(Command.GAME_OVER, onGameOver);
-        subscribed = true;
-
-        // Hủy đăng ký khi màn hình bị thay (SceneManager đặt Scene mới → Scene cũ mất Window),
-        // kể cả khi controller khác chuyển màn hình.
-        boardCanvas.sceneProperty().addListener((obs, oldScene, scene) -> watchScene(scene));
-        watchScene(boardCanvas.getScene());
-    }
-
-    private void watchScene(Scene scene) {
-        if (scene == null) return;
-        scene.windowProperty().addListener((obs, oldWindow, window) -> {
-            if (oldWindow != null && window == null) dispose();
-        });
+        // Tự hủy đăng ký khi màn hình bị thay, kể cả khi controller khác chuyển màn hình.
+        subscriptions.on(Command.MOVED, this::handleMoved)
+                .on(Command.ERROR, this::handleError)
+                .on(Command.GAME_OVER, this::handleGameOver)
+                .bindTo(boardCanvas);
     }
 
     private String turnText() {
@@ -154,14 +137,6 @@ public class GameController {
         return cells;
     }
 
-    private void dispose() {
-        if (!subscribed) return;
-        MessageBus.get().unsubscribe(Command.MOVED, onMoved);
-        MessageBus.get().unsubscribe(Command.ERROR, onError);
-        MessageBus.get().unsubscribe(Command.GAME_OVER, onGameOver);
-        subscribed = false;
-    }
-
     private static Symbol parseSymbol(String s, Symbol fallback) {
         try {
             Symbol sym = Symbol.valueOf(s);
@@ -173,7 +148,7 @@ public class GameController {
 
     @FXML
     private void back() {
-        dispose();
+        subscriptions.disposeAll();
         SceneManager.get().show(Screen.CONNECT);
     }
 }

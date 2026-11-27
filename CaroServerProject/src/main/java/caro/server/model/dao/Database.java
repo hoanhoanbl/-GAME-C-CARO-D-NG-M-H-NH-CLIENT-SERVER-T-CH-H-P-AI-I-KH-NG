@@ -6,7 +6,7 @@ import java.sql.SQLException;
 
 /**
  * Kết nối MySQL/MariaDB của XAMPP.
- * Mặc định: localhost:3306, database "caro", user "root", mật khẩu rỗng.
+ * Mặc định: localhost:3306, database "gamecocaro", user "root", mật khẩu rỗng.
  * Có thể đổi bằng biến môi trường CARO_DB_URL, CARO_DB_USER, CARO_DB_PASSWORD.
  */
 public class Database {

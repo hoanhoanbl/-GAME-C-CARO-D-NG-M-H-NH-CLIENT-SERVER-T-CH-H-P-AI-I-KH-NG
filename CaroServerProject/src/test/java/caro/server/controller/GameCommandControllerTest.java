@@ -5,6 +5,7 @@ import caro.common.protocol.Command;
 import caro.common.protocol.Message;
 import caro.server.model.game.GameSession;
 import caro.server.model.player.Player;
+import caro.server.model.player.PlayerRegistry;
 import caro.server.model.player.RemotePlayer;
 import caro.server.model.room.RoomManager;
 import caro.server.net.ClientHandler;
@@ -132,7 +133,7 @@ class GameCommandControllerTest {
 
     @Test
     void dispatcherRoutesMoveToController() {
-        CommandDispatcher dispatcher = new CommandDispatcher(null);
+        CommandDispatcher dispatcher = new CommandDispatcher(null, rooms, new PlayerRegistry());
         dispatcher.register(controller);
         assertTrue(dispatcher.dispatch(an, Message.parse("MOVE|7|7")));
         assertEquals("MOVED|X|7|7|O", binh.last());
@@ -140,7 +141,7 @@ class GameCommandControllerTest {
 
     @Test
     void dispatcherStillRequiresLogin() {
-        CommandDispatcher dispatcher = new CommandDispatcher(null);
+        CommandDispatcher dispatcher = new CommandDispatcher(null, rooms, new PlayerRegistry());
         dispatcher.register(controller);
         CapturingPlayer anon = new CapturingPlayer("x");
         anon.logout();
@@ -150,7 +151,7 @@ class GameCommandControllerTest {
 
     @Test
     void dispatcherRejectsDuplicateRegistration() {
-        CommandDispatcher dispatcher = new CommandDispatcher(null);
+        CommandDispatcher dispatcher = new CommandDispatcher(null, rooms, new PlayerRegistry());
         dispatcher.register(controller);
         assertThrows(IllegalStateException.class, () -> dispatcher.register(new GameCommandController(rooms)));
     }

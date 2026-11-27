@@ -18,8 +18,10 @@ public class SceneManager {
 
     public void show(Screen screen) {
         String file = screen.name().toLowerCase() + ".fxml";
+        java.net.URL url = getClass().getResource("/caro/client/view/" + file);
+        if (url == null) throw new IllegalStateException("Thiếu file giao diện " + file + " cho màn hình " + screen);
         try {
-            Region root = FXMLLoader.load(getClass().getResource("/caro/client/view/" + file));
+            Region root = FXMLLoader.load(url);
             Scene scene = new Scene(root, 900, 650);
             stage.setScene(scene);
             stage.show();

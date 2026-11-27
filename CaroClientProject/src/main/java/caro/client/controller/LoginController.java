@@ -10,12 +10,10 @@ import caro.client.app.SceneManager;
 import caro.client.app.Screen;
 import caro.client.model.ClientSession;
 import caro.client.model.User;
-import caro.client.net.MessageBus;
 import caro.client.net.NetworkClient;
 import caro.common.protocol.Command;
 import caro.common.protocol.Message;
 
-import java.util.function.Consumer;
 import java.util.regex.Pattern;
 
 public class LoginController {
@@ -37,20 +35,18 @@ public class LoginController {
 
     private boolean isRegisterMode = false;
 
-    private final Consumer<Message> welcomeHandler = this::onWelcome;
-    private final Consumer<Message> registeredHandler = this::onRegistered;
-    private final Consumer<Message> errorHandler = this::onError;
+    /** Email: phần tên miền cấp cao từ 2 ký tự trở lên (chấp nhận .travel, .museum…). */
+    static final Pattern EMAIL_PATTERN = Pattern.compile("^[\\w.-]+@([\\w-]+\\.)+[\\w-]{2,}$");
+
+    private final BusSubscriptions subscriptions = new BusSubscriptions();
 
     @FXML
     public void initialize() {
-        MessageBus bus = MessageBus.get();
-        bus.unsubscribe(Command.WELCOME, welcomeHandler);
-        bus.unsubscribe(Command.REGISTERED, registeredHandler);
-        bus.unsubscribe(Command.ERROR, errorHandler);
-
-        bus.subscribe(Command.WELCOME, welcomeHandler);
-        bus.subscribe(Command.REGISTERED, registeredHandler);
-        bus.subscribe(Command.ERROR, errorHandler);
+        // Handler tự hủy khi rời màn hình: mở lại màn hình đăng nhập không làm WELCOME chạy hai lần.
+        subscriptions.on(Command.WELCOME, this::onWelcome)
+                .on(Command.REGISTERED, this::onRegistered)
+                .on(Command.ERROR, this::onError)
+                .bindTo(usernameField);
 
         showLoginView();
     }
@@ -126,7 +122,7 @@ public class LoginController {
             }
 
             String email = emailField.getText().trim();
-            if (!email.isEmpty() && !email.matches("^[\\w-\\.]+@([\\w-]+\\.)+[\\w-]{2,4}$")) {
+            if (!email.isEmpty() && !EMAIL_PATTERN.matcher(email).matches()) {
                 messageLabel.setText("Email không đúng định dạng!");
                 emailField.requestFocus();
                 return;
@@ -152,7 +148,8 @@ public class LoginController {
 
     private boolean ensureConnected() {
         if (!NetworkClient.get().isConnected()) {
-            boolean reconnected = NetworkClient.get().connect("localhost", 5000);
+            // Kết nối lại đúng server đã chọn ở màn hình kết nối (không nối cứng localhost).
+            boolean reconnected = NetworkClient.get().reconnect();
             if (!reconnected) {
                 messageLabel.setStyle("-fx-text-fill: #e53e3e;");
                 messageLabel.setText("Chưa kết nối tới CaroServer! Hãy bật server hoặc chọn 'Đổi Server'.");
@@ -165,8 +162,10 @@ public class LoginController {
     private void onWelcome(Message msg) {
         String username = msg.arg(0);
         String email = msg.argCount() > 1 ? msg.arg(1) : "";
-        User user = new User(username, passwordField.getText(), email);
+        // Không giữ mật khẩu trong bộ nhớ sau khi đăng nhập.
+        User user = new User(username, null, email);
         ClientSession.get().setUser(user);
+        passwordField.clear();
         ClientSession.get().setGuest(false);
 
         SceneManager.get().show(Screen.LOBBY);

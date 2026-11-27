@@ -92,7 +92,7 @@ public class GameSession {
             List<int[]> winLine = WinChecker.findWinLine(board, row, col);
             if (!winLine.isEmpty()) {
                 ended = finish(GameResult.five(s, winLine), true);
-            } else if (board.isFull()) {
+            } else if (moveCount == Board.SIZE * Board.SIZE) {   // mỗi nước chiếm đúng 1 ô trống → đủ 225 nước là kín bàn
                 ended = finish(GameResult.draw(), true);
             } else {
                 return;

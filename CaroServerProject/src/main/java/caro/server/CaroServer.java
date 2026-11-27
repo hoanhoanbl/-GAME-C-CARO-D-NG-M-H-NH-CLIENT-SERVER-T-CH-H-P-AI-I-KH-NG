@@ -4,6 +4,7 @@ import caro.server.controller.GameCommandController;
 import caro.server.model.auth.AuthService;
 import caro.server.model.dao.Database;
 import caro.server.model.dao.PlayerDao;
+import caro.server.model.player.PlayerRegistry;
 import caro.server.model.room.RoomManager;
 import caro.server.net.ClientHandler;
 import caro.server.net.CommandDispatcher;
@@ -22,8 +23,9 @@ public class CaroServer {
                 : "[DB] Không có MySQL: đăng nhập/đăng ký sẽ bị từ chối.");
 
         AuthService auth = new AuthService(new PlayerDao(db));
-        CommandDispatcher dispatcher = new CommandDispatcher(auth);
         RoomManager rooms = new RoomManager();
+        PlayerRegistry registry = new PlayerRegistry();
+        CommandDispatcher dispatcher = new CommandDispatcher(auth, rooms, registry);
         dispatcher.register(new GameCommandController(rooms));
 
         try (ServerSocket server = new ServerSocket(config.port)) {
