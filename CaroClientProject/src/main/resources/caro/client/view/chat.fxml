@@ -3,6 +3,7 @@
 <?import javafx.scene.layout.*?>
 
 <VBox xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
-      fx:controller="caro.client.controller.ChatController">
+      fx:controller="caro.client.controller.ChatController"
+      stylesheets="@css/base.css, @css/chat.css">
     <Label text="Chat"/>
 </VBox>

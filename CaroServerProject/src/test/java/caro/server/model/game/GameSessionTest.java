@@ -108,6 +108,23 @@ class GameSessionTest {
     }
 
     @Test
+    void wrongTurnIsCheckedBeforeOutOfBoard() {
+        session.handleMove(binh, 20, 20);
+        assertTrue(binh.lastLine().startsWith("ERROR|NOT_YOUR_TURN|"));
+        assertTrue(an.inbox.isEmpty());
+    }
+
+    @Test
+    void surrenderAfterWinIsNoGame() {
+        fiveInARowWins();
+        session.handleSurrender(binh);
+        assertTrue(binh.lastLine().startsWith("ERROR|NO_GAME|"));
+        assertEquals(EndReason.FIVE, session.result().reason());
+        assertEquals(1, ended.size(), "listener chỉ được gọi 1 lần");
+        assertEquals(1, recorder.calls.size(), "recorder chỉ được gọi 1 lần");
+    }
+
+    @Test
     void outOfBoard() {
         session.handleMove(an, -1, 0);
         assertTrue(an.lastLine().startsWith("ERROR|OUT_OF_BOARD|"));

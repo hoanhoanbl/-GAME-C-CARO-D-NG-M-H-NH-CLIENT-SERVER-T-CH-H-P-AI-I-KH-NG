@@ -12,7 +12,9 @@ public class RemotePlayer implements Player {
 
     public boolean isLoggedIn() { return name != null && !guest; }
     public void login(String name) { this.name = name; this.guest = false; }
-    public void logout() { this.name = null; }
+    /** Khách chơi với máy (3.H.2 gọi khi nhận {@code PLAY_BOT} từ người chưa đăng nhập). */
+    public void enterAsGuest(String guestName) { this.name = guestName; this.guest = true; }
+    public void logout() { this.name = null; this.guest = false; }
 
     @Override public String getName() { return name; }
     @Override public boolean isBot() { return false; }

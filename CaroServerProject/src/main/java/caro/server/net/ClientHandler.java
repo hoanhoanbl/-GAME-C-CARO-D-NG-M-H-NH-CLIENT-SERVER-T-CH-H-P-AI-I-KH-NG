@@ -1,6 +1,7 @@
 package caro.server.net;
 
 import caro.common.protocol.Message;
+import caro.common.protocol.Protocol;
 import caro.server.messages.ErrorMessages;
 import caro.server.model.player.RemotePlayer;
 
@@ -32,16 +33,33 @@ public class ClientHandler implements Runnable {
              PrintWriter w = new PrintWriter(
                      new OutputStreamWriter(socket.getOutputStream(), StandardCharsets.UTF_8), true)) {
             this.out = w;
-            String line;
+            LineReader reader = new LineReader(in);
+            LineReader.Line read;
             boolean keepOpen = true;
-            while (keepOpen && (line = in.readLine()) != null) {
+            while (keepOpen && (read = reader.readLine()) != null) {
+                if (read.tooLong()) {
+                    System.out.println("[SERVER] <- (dòng quá " + Protocol.MAX_LINE_BYTES + " byte, bỏ qua)");
+                    send(ErrorMessages.error("BAD_MESSAGE", "Dòng quá dài"));
+                    continue;
+                }
+                String line = read.text();
                 line = line.replace("\uFEFF", "").trim();
                 if (line.isEmpty()) continue;
                 System.out.println("[SERVER] <- " + mask(line));
+                Message msg;
                 try {
-                    keepOpen = dispatcher.dispatch(player, Message.parse(line));
-                } catch (Exception e) {
+                    msg = Message.parse(line);
+                } catch (IllegalArgumentException e) {
                     send(ErrorMessages.error("BAD_MESSAGE", "Thông điệp không hợp lệ"));
+                    continue;
+                }
+                try {
+                    keepOpen = dispatcher.dispatch(player, msg);
+                } catch (RuntimeException e) {
+                    // Lỗi lập trình: log đủ để sửa, giữ kết nối.
+                    System.out.println("[SERVER] Lỗi khi xử lý " + msg.command() + ":");
+                    e.printStackTrace(System.out);
+                    send(ErrorMessages.error("SERVER_ERROR", "Lỗi máy chủ khi xử lý " + msg.command()));
                 }
             }
         } catch (IOException e) {

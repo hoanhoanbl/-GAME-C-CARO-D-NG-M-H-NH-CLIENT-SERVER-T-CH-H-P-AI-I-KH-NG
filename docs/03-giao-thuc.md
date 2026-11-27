@@ -79,7 +79,8 @@ public void show(Screen screen);
 - Mỗi thông điệp là **một dòng** UTF-8 kết thúc bằng `\n`, dài tối đa 1024 byte.
 - Dạng: `LỆNH|tham_số_1|tham_số_2|…`
 - Trong nội dung chat, client thay `|` bằng `/` và bỏ ký tự xuống dòng trước khi gửi.
-- Lệnh không xác định hoặc sai số tham số → server trả `ERROR|BAD_MESSAGE|…`, **không** ngắt kết nối.
+- Lệnh không xác định, sai số tham số hoặc dòng dài quá 1024 byte → server trả `ERROR|BAD_MESSAGE|…`, **không** ngắt kết nối. Lỗi nội bộ khi xử lý lệnh hợp lệ → `ERROR|SERVER_ERROR|…`, cũng không ngắt kết nối.
+- `Message` tự làm sạch mọi tham số khi tạo: `|` → `/`, ký tự CR/LF → khoảng trắng, nên một tham số không làm lệch số tham số hay tách dòng.
 - Khách (chưa đăng nhập) chỉ được gửi `REGISTER`, `LOGIN`, `PLAY_BOT`, `PING`, `QUIT`, và trong ván với máy thì thêm `MOVE`, `SURRENDER`, `REMATCH`, `BACK_TO_LOBBY`. Lệnh khác → `ERROR|NOT_LOGGED_IN|…` (bảng quyền ở mục 7.2).
 - Mật khẩu không được chứa `|`. Mật khẩu đi qua TCP dạng văn bản thường (không mã hóa đường truyền); chấp nhận trong LAN và ghi rõ hạn chế này trong báo cáo.
 - Server **không** ghi log dòng `REGISTER`/`LOGIN` nguyên văn (che mật khẩu thành `***`).
@@ -88,7 +89,7 @@ public void show(Screen screen);
 
 | Lệnh | Tham số | Trạng thái hợp lệ | Phản hồi khi thành công | Mã lỗi | Handler (chủ) |
 |---|---|---|---|---|---|
-| `REGISTER` | `username\|password` | Chưa đăng nhập | `REGISTERED\|username` (không tự đăng nhập) | `USERNAME_TAKEN`, `USERNAME_INVALID`, `PASSWORD_INVALID`, `DB_UNAVAILABLE` | AuthCommandController (P) |
+| `REGISTER` | `username\|password[\|email]` (email tùy chọn) | Chưa đăng nhập | `REGISTERED\|username` (không tự đăng nhập) | `USERNAME_TAKEN`, `USERNAME_INVALID`, `PASSWORD_INVALID`, `DB_UNAVAILABLE` | AuthCommandController (P) |
 | `LOGIN` | `username\|password` | Chưa đăng nhập | `WELCOME\|username` rồi `ROOM_LIST` | `INVALID_CREDENTIALS`, `ALREADY_LOGGED_IN`, `DB_UNAVAILABLE` | AuthCommandController (P) |
 | `LOGOUT` | — | Ở sảnh | `LOGGED_OUT` | `IN_GAME` | AuthCommandController (P) |
 | `LIST_ROOMS` | — | Ở sảnh | `ROOM_LIST` | — | LobbyCommandController (P) |
@@ -109,7 +110,7 @@ public void show(Screen screen);
 | Lệnh | Tham số | Ý nghĩa | Client xử lý (chủ) |
 |---|---|---|---|
 | `REGISTERED` | `username` | Đăng ký thành công | LoginController (P) |
-| `WELCOME` | `username` | Đăng nhập thành công | LoginController (P) |
+| `WELCOME` | `username[\|email]` (có email nếu tài khoản có) | Đăng nhập thành công | LoginController (P) |
 | `LOGGED_OUT` | — | Đã đăng xuất | LobbyController (P) |
 | `BACK_TO_LOGIN` | — | Khách kết thúc ván với máy, quay về màn hình đăng nhập | GameController (H) gọi `SceneManager.show(LOGIN)` |
 | `ROOM_LIST` | `id:chủ_phòng:trạng_thái;…` (rỗng nếu không có) | `trạng_thái` = `WAITING` / `PLAYING` | LobbyController (P) |
