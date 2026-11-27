@@ -1,7 +1,10 @@
 package caro.client.model;
 
+import caro.common.model.EndReason;
 import caro.common.model.Symbol;
 import org.junit.jupiter.api.Test;
+
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -68,5 +71,50 @@ public class GameModelTest {
         assertThrows(IllegalArgumentException.class, () -> m.applyMove(Symbol.X, 15, 0, Symbol.O));
         assertThrows(IllegalArgumentException.class, () -> m.applyMove(Symbol.EMPTY, 0, 0, Symbol.O));
         assertNull(m.lastMove.get());
+    }
+
+    @Test
+    void finishSetsOutcomeAndEndsTurns() {
+        GameModel m = new GameModel();
+        m.start(Symbol.X, "Bình", Symbol.X);
+        m.errorMessage.set("lỗi cũ");
+        List<GameModel.Cell> line = List.of(new GameModel.Cell(7, 3), new GameModel.Cell(7, 4),
+                new GameModel.Cell(7, 5), new GameModel.Cell(7, 6), new GameModel.Cell(7, 7));
+
+        m.finish(Symbol.X, EndReason.FIVE, line);
+
+        assertTrue(m.isOver());
+        assertFalse(m.isMyTurn());
+        assertEquals(line, m.outcome.get().winLine());
+        assertEquals(GameModel.Result.WIN, m.outcome.get().resultFor(Symbol.X));
+        assertEquals(GameModel.Result.LOSE, m.outcome.get().resultFor(Symbol.O));
+        assertEquals("", m.errorMessage.get());
+    }
+
+    @Test
+    void drawOutcome() {
+        GameModel m = new GameModel();
+        m.finish(null, EndReason.FULL, List.of());
+        assertTrue(m.outcome.get().isDraw());
+        assertEquals(GameModel.Result.DRAW, m.outcome.get().resultFor(Symbol.O));
+    }
+
+    @Test
+    void startClearsOutcome() {
+        GameModel m = new GameModel();
+        m.finish(Symbol.O, EndReason.SURRENDER, null);
+        m.start(Symbol.O, "Bình", Symbol.X);
+        assertFalse(m.isOver());
+        assertNull(m.outcome.get());
+    }
+
+    @Test
+    void finishRejectsBadInput() {
+        GameModel m = new GameModel();
+        assertThrows(IllegalArgumentException.class, () -> m.finish(Symbol.X, null, List.of()));
+        assertThrows(IllegalArgumentException.class, () -> m.finish(Symbol.EMPTY, EndReason.FIVE, List.of()));
+        assertThrows(IllegalArgumentException.class,
+                () -> m.finish(Symbol.X, EndReason.FIVE, List.of(new GameModel.Cell(15, 0))));
+        assertFalse(m.isOver());
     }
 }
