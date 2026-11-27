@@ -57,7 +57,7 @@ public class AIEngine {
      * @return điểm thế cờ nhìn từ phía {@code me}
      */
     private long minimax(Board board, int depth, boolean maximizing, Symbol me, Symbol opp) {
-        if (depth == 0) return Evaluator.evaluate(board, me);
+        if (depth == 0) return Evaluator.evaluate(board, me, maximizing ? me : opp);
 
         List<int[]> moves = MoveGenerator.candidates(board);
         if (moves.isEmpty()) return 0; // bàn đầy: hòa

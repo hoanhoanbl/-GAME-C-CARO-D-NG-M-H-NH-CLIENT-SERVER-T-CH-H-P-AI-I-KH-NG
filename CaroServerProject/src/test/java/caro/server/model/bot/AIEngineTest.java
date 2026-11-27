@@ -109,6 +109,40 @@ class AIEngineTest {
     }
 
     @Test
+    void botPreventsDoubleOpenThree() {
+        Board b = new Board();
+        // X đánh (7,7) sẽ có ba mở ở hàng 7 và ba mở ở cột 7 cùng lúc
+        b.place(7, 5, Symbol.X);
+        b.place(7, 6, Symbol.X);
+        b.place(5, 7, Symbol.X);
+        b.place(6, 7, Symbol.X);
+        b.place(2, 2, Symbol.O);
+        b.place(2, 3, Symbol.O);
+        assertArrayEquals(new int[] { 7, 7 }, engine.bestMove(b, Symbol.O, 2));
+    }
+
+    @Test
+    void botDoesNotAllowBrokenThreePlusThreeFork() {
+        Board b = new Board();
+        // X đánh (7,7) sẽ có ba gãy mở X_XX ở hàng 7 (cột 4,6,7) và ba mở ở cột 7 (hàng 5..7)
+        b.place(7, 4, Symbol.X);
+        b.place(7, 6, Symbol.X);
+        b.place(5, 7, Symbol.X);
+        b.place(6, 7, Symbol.X);
+        b.place(2, 2, Symbol.O);
+        b.place(2, 3, Symbol.O);
+        int[] m = engine.bestMove(b, Symbol.O, 2);
+        Board after = b.copy();
+        after.place(m[0], m[1], Symbol.O);
+        for (int[] reply : MoveGenerator.candidates(after)) {
+            after.place(reply[0], reply[1], Symbol.X);
+            assertTrue(Evaluator.stats(after, Symbol.X).threats() < 2,
+                    "bot đánh " + m[0] + "," + m[1] + " nhưng X đánh " + reply[0] + "," + reply[1] + " vẫn có thế đôi");
+            after.place(reply[0], reply[1], Symbol.EMPTY);
+        }
+    }
+
+    @Test
     void boardIsUnchangedAfterSearch() {
         Board b = new Board();
         row(b, 7, 5, 3, Symbol.X);
