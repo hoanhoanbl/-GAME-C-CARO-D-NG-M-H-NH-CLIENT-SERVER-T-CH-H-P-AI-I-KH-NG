@@ -7,11 +7,13 @@ import caro.client.model.GameModel;
 import caro.common.model.Board;
 import caro.common.model.Symbol;
 
+import java.util.List;
 import java.util.function.BiConsumer;
 
 /**
  * Vẽ bàn cờ 15x15 theo {@link GameModel} (R2: không gửi mạng, không chứa luật cờ).
- * Tự vẽ lại khi bàn, lượt hoặc nước cuối thay đổi; báo ô được click qua {@link #setOnCellClicked}.
+ * Tự vẽ lại khi bàn, nước cuối hoặc kết quả ván thay đổi (tô đường thắng theo {@code GAME_OVER});
+ * báo ô được click qua {@link #setOnCellClicked}.
  */
 public class BoardCanvas extends Canvas {
     public static final double CELL = 38;
@@ -22,6 +24,8 @@ public class BoardCanvas extends Canvas {
     private static final Color LAST_MOVE = Color.web("#fff3a0");
     private static final Color X_COLOR = Color.web("#c53030");
     private static final Color O_COLOR = Color.web("#2b6cb0");
+    private static final Color WIN_CELL = Color.web("#9ae6b4");
+    private static final Color WIN_LINE = Color.web("#2f855a", 0.85);
 
     private GameModel model;
     private BiConsumer<Integer, Integer> onCellClicked;
@@ -41,6 +45,7 @@ public class BoardCanvas extends Canvas {
         this.model = model;
         model.boardVersionProperty().addListener((obs, o, n) -> draw());
         model.lastMove.addListener((obs, o, n) -> draw());
+        model.outcome.addListener((obs, o, n) -> draw());
         draw();
     }
 
@@ -56,6 +61,13 @@ public class BoardCanvas extends Canvas {
             GameModel.Cell last = model.lastMove.get();
             g.setFill(LAST_MOVE);
             g.fillRect(PAD + last.col() * CELL, PAD + last.row() * CELL, CELL, CELL);
+        }
+
+        List<GameModel.Cell> winLine = model == null || model.outcome.get() == null
+                ? List.of() : model.outcome.get().winLine();
+        g.setFill(WIN_CELL);
+        for (GameModel.Cell c : winLine) {
+            g.fillRect(PAD + c.col() * CELL, PAD + c.row() * CELL, CELL, CELL);
         }
 
         g.setStroke(GRID);
@@ -83,5 +95,15 @@ public class BoardCanvas extends Canvas {
                 }
             }
         }
+
+        if (winLine.size() >= 2) {
+            // Server gửi các ô theo thứ tự dọc đường thắng → nối ô đầu với ô cuối.
+            GameModel.Cell a = winLine.get(0), b = winLine.get(winLine.size() - 1);
+            g.setStroke(WIN_LINE);
+            g.setLineWidth(5);
+            g.strokeLine(centerOf(a.col()), centerOf(a.row()), centerOf(b.col()), centerOf(b.row()));
+        }
     }
+
+    private static double centerOf(int index) { return PAD + index * CELL + CELL / 2; }
 }

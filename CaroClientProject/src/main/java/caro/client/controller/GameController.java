@@ -11,15 +11,20 @@ import caro.client.model.GameInfo;
 import caro.client.model.GameModel;
 import caro.client.net.MessageBus;
 import caro.client.view.BoardCanvas;
+import caro.client.view.ResultDialog;
+import caro.common.model.EndReason;
 import caro.common.model.Symbol;
 import caro.common.protocol.Command;
 import caro.common.protocol.Message;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.function.Consumer;
 
 /**
- * Màn hình ván cờ: click ô → gửi {@code MOVE}; nhận {@code MOVED}, {@code ERROR} → cập nhật
- * {@link GameModel}. {@link BoardCanvas} và các nhãn tự cập nhật qua binding (R3).
+ * Màn hình ván cờ: click ô → gửi {@code MOVE}; nhận {@code MOVED}, {@code ERROR}, {@code GAME_OVER}
+ * → cập nhật {@link GameModel}. {@link BoardCanvas} và các nhãn tự cập nhật qua binding (R3);
+ * hết ván thì mở {@link ResultDialog}.
  */
 public class GameController {
     @FXML private BoardCanvas boardCanvas;
@@ -30,6 +35,7 @@ public class GameController {
     private final GameModel model = new GameModel();
     private final Consumer<Message> onMoved = this::handleMoved;
     private final Consumer<Message> onError = this::handleError;
+    private final Consumer<Message> onGameOver = this::handleGameOver;
     private boolean subscribed;
 
     @FXML
@@ -50,13 +56,12 @@ public class GameController {
                         + (model.opponentName.get().isEmpty() ? "" : " - Đối thủ: " + model.opponentName.get()),
                 model.mySymbol, model.opponentName));
         turnLabel.textProperty().bind(Bindings.createStringBinding(
-                () -> model.isMyTurn() ? "Đến lượt bạn (" + model.currentTurn.get() + ")"
-                        : "Lượt đối thủ (" + model.currentTurn.get() + ")",
-                model.currentTurn, model.mySymbol));
+                this::turnText, model.currentTurn, model.mySymbol, model.outcome));
         errorLabel.textProperty().bind(model.errorMessage);
 
         MessageBus.get().subscribe(Command.MOVED, onMoved);
         MessageBus.get().subscribe(Command.ERROR, onError);
+        MessageBus.get().subscribe(Command.GAME_OVER, onGameOver);
         subscribed = true;
 
         // Hủy đăng ký khi màn hình bị thay (SceneManager đặt Scene mới → Scene cũ mất Window),
@@ -72,7 +77,15 @@ public class GameController {
         });
     }
 
+    private String turnText() {
+        GameModel.Outcome o = model.outcome.get();
+        if (o != null) return "Kết thúc: " + ResultDialog.title(o.resultFor(model.mySymbol.get()));
+        return model.isMyTurn() ? "Đến lượt bạn (" + model.currentTurn.get() + ")"
+                : "Lượt đối thủ (" + model.currentTurn.get() + ")";
+    }
+
     private void sendMove(int row, int col) {
+        if (model.isOver()) return;   // server cũng sẽ trả NO_GAME, chặn sớm cho đỡ hiện lỗi thừa
         ClientSession.get().send(new Message(Command.MOVE.name(), String.valueOf(row), String.valueOf(col)));
     }
 
@@ -97,10 +110,55 @@ public class GameController {
         model.errorMessage.set(text.isEmpty() ? "Lỗi không xác định" : text);
     }
 
+    /** {@code GAME_OVER|winner|reason|cells}: winner = X/O/DRAW, cells = {@code r,c;r,c;…} (có thể rỗng). */
+    private void handleGameOver(Message msg) {
+        if (model.isOver()) return;   // đã nhận rồi, tránh mở hộp thoại hai lần
+        try {
+            if (msg.argCount() < 2) throw new IllegalArgumentException("cần ít nhất 2 tham số");
+            String w = msg.arg(0);
+            Symbol winner = "DRAW".equals(w) ? null : Symbol.valueOf(w);
+            EndReason reason = EndReason.valueOf(msg.arg(1));
+            List<GameModel.Cell> cells = parseCells(msg.argCount() > 2 ? msg.arg(2) : "");
+            model.finish(winner, reason, cells);
+        } catch (IllegalArgumentException e) {   // gồm NumberFormatException
+            System.err.println("[GameController] GAME_OVER sai định dạng: " + msg.format() + " (" + e.getMessage() + ")");
+            return;
+        }
+
+        GameModel.Outcome o = model.outcome.get();
+        ResultDialog.show(boardCanvas.getScene() == null ? null : boardCanvas.getScene().getWindow(),
+                o.resultFor(model.mySymbol.get()), o.reason(), ClientSession.get().isGuest(), this::onResultChoice);
+    }
+
+    /**
+     * Chơi lại → gửi {@code REMATCH}; rời đi → gửi {@code BACK_TO_LOBBY} (server trả {@code ROOM_LIST}
+     * hoặc {@code BACK_TO_LOGIN} rồi màn hình tương ứng tự chuyển); Xem bàn cờ → giữ nguyên.
+     */
+    private void onResultChoice(ResultDialog.Choice choice) {
+        switch (choice) {
+            case REMATCH -> ClientSession.get().send(new Message(Command.REMATCH.name()));
+            case LEAVE -> ClientSession.get().send(new Message(Command.BACK_TO_LOBBY.name()));
+            case CLOSE -> { }
+        }
+    }
+
+    /** {@code "7,3;7,4"} → [(7,3), (7,4)]; chuỗi rỗng → danh sách rỗng. */
+    static List<GameModel.Cell> parseCells(String s) {
+        List<GameModel.Cell> cells = new ArrayList<>();
+        if (s == null || s.isBlank()) return cells;
+        for (String part : s.split(";")) {
+            String[] rc = part.split(",");
+            if (rc.length != 2) throw new IllegalArgumentException("ô sai định dạng: " + part);
+            cells.add(new GameModel.Cell(Integer.parseInt(rc[0].trim()), Integer.parseInt(rc[1].trim())));
+        }
+        return cells;
+    }
+
     private void dispose() {
         if (!subscribed) return;
         MessageBus.get().unsubscribe(Command.MOVED, onMoved);
         MessageBus.get().unsubscribe(Command.ERROR, onError);
+        MessageBus.get().unsubscribe(Command.GAME_OVER, onGameOver);
         subscribed = false;
     }
 
