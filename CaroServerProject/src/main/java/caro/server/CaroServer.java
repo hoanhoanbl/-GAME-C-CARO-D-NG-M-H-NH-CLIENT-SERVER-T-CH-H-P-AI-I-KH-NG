@@ -1,8 +1,10 @@
 package caro.server;
 
+import caro.server.controller.GameCommandController;
 import caro.server.model.auth.AuthService;
 import caro.server.model.dao.Database;
 import caro.server.model.dao.PlayerDao;
+import caro.server.model.room.RoomManager;
 import caro.server.net.ClientHandler;
 import caro.server.net.CommandDispatcher;
 
@@ -21,6 +23,8 @@ public class CaroServer {
 
         AuthService auth = new AuthService(new PlayerDao(db));
         CommandDispatcher dispatcher = new CommandDispatcher(auth);
+        RoomManager rooms = new RoomManager();
+        dispatcher.register(new GameCommandController(rooms));
 
         try (ServerSocket server = new ServerSocket(config.port)) {
             System.out.println("[SERVER] Đang lắng nghe cổng " + config.port + "...");
