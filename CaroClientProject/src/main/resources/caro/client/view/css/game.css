@@ -1,1 +1,6 @@
 /* game.css */
+.game-root { -fx-background-color: #f0f2f5; }
+.game-title { -fx-font-size: 22px; -fx-font-weight: bold; -fx-text-fill: #2b6cb0; }
+.info-label { -fx-font-size: 14px; -fx-text-fill: #4a5568; }
+.turn-label { -fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: #2d3748; }
+.error-label { -fx-font-size: 13px; -fx-text-fill: #c53030; }
