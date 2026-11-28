@@ -3,9 +3,66 @@
 <?import javafx.scene.layout.*?>
 
 <VBox xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
-      fx:controller="caro.client.controller.WaitingController" alignment="CENTER" spacing="12"
-      stylesheets="@css/base.css">
-    <Label text="Đang chờ đối thủ" style="-fx-font-size: 22px;"/>
-    <Button text="Màn hình kế tiếp" onAction="#next"/>
-    
+      fx:controller="caro.client.controller.WaitingController"
+      alignment="CENTER"
+      spacing="20"
+      stylesheets="@css/base.css, @css/waiting.css"
+      style="-fx-background-color: #f7fafc; -fx-padding: 30;">
+
+    <VBox alignment="CENTER" spacing="24" maxWidth="480" prefWidth="480"
+          styleClass="waiting-card"
+          style="-fx-padding: 36 30;">
+
+        <!-- Tiêu đề phòng chờ -->
+        <VBox alignment="CENTER" spacing="6">
+            <Label text="PHÒNG CHỜ TRẬN ĐẤU"
+                   style="-fx-font-size: 22px; -fx-font-weight: bold; -fx-text-fill: #2b6cb0;"/>
+            <HBox alignment="CENTER" spacing="8" styleClass="room-badge">
+                <Label text="Mã phòng:" style="-fx-font-size: 14px; -fx-text-fill: #4a5568;"/>
+                <Label fx:id="roomIdLabel" text="---"
+                       style="-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: #2b6cb0;"/>
+            </HBox>
+        </VBox>
+
+        <!-- Spinner & Trạng thái -->
+        <VBox alignment="CENTER" spacing="12">
+            <ProgressIndicator prefWidth="48" prefHeight="48"/>
+            <Label text="Đang chờ đối thủ tham gia..."
+                   style="-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: #2d3748;"/>
+            <Label text="Ván đấu sẽ tự động bắt đầu ngay khi có người vào phòng"
+                   style="-fx-font-size: 13px; -fx-text-fill: #718096;"/>
+        </VBox>
+
+        <Separator/>
+
+        <!-- Thông tin người chơi trong phòng -->
+        <VBox spacing="10" prefWidth="400">
+            <HBox alignment="CENTER_LEFT" spacing="12" styleClass="player-info-box">
+                <Label text="❌" style="-fx-font-size: 18px;"/>
+                <VBox HBox.hgrow="ALWAYS">
+                    <Label fx:id="hostLabel" text="Chủ phòng: Đang cập nhật..."
+                           style="-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #2d3748;"/>
+                    <Label text="Quân X (Đi trước)" style="-fx-font-size: 12px; -fx-text-fill: #38a169;"/>
+                </VBox>
+                <Label text="Sẵn sàng" style="-fx-text-fill: #38a169; -fx-font-weight: bold; -fx-font-size: 12px;"/>
+            </HBox>
+
+            <HBox alignment="CENTER_LEFT" spacing="12" styleClass="player-info-box">
+                <Label text="⭕" style="-fx-font-size: 18px;"/>
+                <VBox HBox.hgrow="ALWAYS">
+                    <Label text="Đối thủ: Đang chờ..."
+                           style="-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #718096;"/>
+                    <Label text="Quân O (Đi sau)" style="-fx-font-size: 12px; -fx-text-fill: #a0aec0;"/>
+                </VBox>
+                <Label text="Đang đợi..." style="-fx-text-fill: #dd6b20; -fx-font-size: 12px;"/>
+            </HBox>
+        </VBox>
+
+        <Label fx:id="messageLabel" text=""
+               style="-fx-font-size: 13px; -fx-text-fill: #e53e3e;" wrapText="true"/>
+
+        <!-- Nút rời phòng -->
+        <Button fx:id="leaveBtn" text="🚪 Rời phòng" onAction="#handleLeaveRoom"
+                styleClass="btn-leave"/>
+    </VBox>
 </VBox>
