@@ -1,6 +1,7 @@
 package caro.server.model.room;
 
 import caro.common.model.GameResult;
+import caro.server.model.dao.MatchRecorder;
 import caro.server.model.dao.NoOpMatchRecorder;
 import caro.server.model.game.GameEndListener;
 import caro.server.model.game.GameSession;
@@ -15,12 +16,21 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
- * Quản lý danh sách phòng chơi (FE-07).
+ * Quản lý danh sách phòng chơi (FE-07, FE-08).
  * Cài {@link GameEndListener} để cập nhật trạng thái phòng khi ván kết thúc.
  */
 public class RoomManager implements GameEndListener {
     private final Map<String, Room> rooms = new ConcurrentHashMap<>();
     private final AtomicInteger idCounter = new AtomicInteger();
+    private final MatchRecorder recorder;
+
+    public RoomManager() {
+        this(new NoOpMatchRecorder());
+    }
+
+    public RoomManager(MatchRecorder recorder) {
+        this.recorder = recorder != null ? recorder : new NoOpMatchRecorder();
+    }
 
     public Room createRoom(Player creator) {
         String id = "R" + idCounter.incrementAndGet();
@@ -32,10 +42,29 @@ public class RoomManager implements GameEndListener {
     public Room createBotRoom(Player human, Player bot, int level) {
         String id = "BOT_" + idCounter.incrementAndGet();
         Room room = new Room(id, human, bot, true, level);
-        GameSession session = GameSessionFactory.create(id, human, bot, this, new NoOpMatchRecorder());
+        GameSession session = GameSessionFactory.create(id, human, bot, this, recorder);
         room.setSession(session);
         rooms.put(id, room);
         return room;
+    }
+
+    /**
+     * Bắt đầu ván đấu giữa 2 người chơi qua GameSessionFactory (FE-08).
+     * Gán session vào phòng, cập nhật trạng thái phòng sang PLAYING, và kích hoạt session.start()
+     * để gửi GAME_START cho cả hai người chơi.
+     */
+    public GameSession startGame(Room room, Player playerO) {
+        synchronized (room) {
+            if (room.isFull() || !room.isWaiting()) {
+                throw new IllegalStateException("Phòng " + room.getId() + " đã đầy hoặc không ở trạng thái chờ");
+            }
+            room.setPlayerO(playerO);
+            room.setStatus(Room.Status.PLAYING);
+            GameSession session = GameSessionFactory.create(room.getId(), room.getPlayerX(), playerO, this, recorder);
+            room.setSession(session);
+            session.start();
+            return session;
+        }
     }
 
     public Room findRoomById(String id) {

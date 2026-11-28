@@ -1,8 +1,13 @@
 package caro.server.model.room;
 
+import caro.common.protocol.Message;
+import caro.server.model.game.GameSession;
 import caro.server.model.player.Player;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -10,11 +15,13 @@ public class RoomManagerTest {
 
     private static class DummyPlayer implements Player {
         private final String name;
+        final List<Message> sent = new ArrayList<>();
+
         DummyPlayer(String name) { this.name = name; }
         @Override public String getName() { return name; }
         @Override public boolean isBot() { return false; }
         @Override public boolean isGuest() { return false; }
-        @Override public void send(caro.common.protocol.Message msg) { }
+        @Override public void send(Message msg) { sent.add(msg); }
     }
 
     private RoomManager roomManager;
@@ -69,6 +76,32 @@ public class RoomManagerTest {
         // Phòng bot không được xuất hiện trong encodeRoomList của sảnh
         String encoded = roomManager.encodeRoomList();
         assertFalse(encoded.contains(botRoom.getId()));
+    }
+
+    @Test
+    void testStartGame() {
+        DummyPlayer p1 = new DummyPlayer("HostPlayer");
+        DummyPlayer p2 = new DummyPlayer("GuestPlayer");
+
+        Room room = roomManager.createRoom(p1);
+        GameSession session = roomManager.startGame(room, p2);
+
+        assertNotNull(session);
+        assertEquals(p2, room.getPlayerO());
+        assertEquals(Room.Status.PLAYING, room.getStatus());
+        assertTrue(room.isFull());
+        assertFalse(room.isWaiting());
+
+        // Cả 2 người chơi đều nhận GAME_START từ session.start()
+        assertEquals(1, p1.sent.size());
+        assertEquals("GAME_START", p1.sent.get(0).command());
+        assertEquals("X", p1.sent.get(0).arg(1));
+        assertEquals("GuestPlayer", p1.sent.get(0).arg(2));
+
+        assertEquals(1, p2.sent.size());
+        assertEquals("GAME_START", p2.sent.get(0).command());
+        assertEquals("O", p2.sent.get(0).arg(1));
+        assertEquals("HostPlayer", p2.sent.get(0).arg(2));
     }
 
     @Test
