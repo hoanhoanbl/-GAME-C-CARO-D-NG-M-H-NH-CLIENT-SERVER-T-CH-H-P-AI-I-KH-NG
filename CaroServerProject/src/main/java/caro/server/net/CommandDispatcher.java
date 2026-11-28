@@ -105,7 +105,7 @@ public class CommandDispatcher {
             p.login(record.username());
             registry.add(p);
             p.send(AuthMessages.welcome(record.username(), record.email()));
-            p.send(LobbyMessages.roomList(""));       // tạm: chưa có phòng nào (2.P.1)
+            p.send(LobbyMessages.roomList(rooms.encodeRoomList()));
             System.out.println("[AUTH] Đăng nhập: " + record.username());
         } catch (AuthException e) {
             p.send(ErrorMessages.error(e.code(), "Đăng nhập thất bại"));
