@@ -1,1 +1,49 @@
 /* lobby.css */
+.table-view {
+    -fx-background-color: transparent;
+    -fx-border-color: #e2e8f0;
+    -fx-border-radius: 6;
+}
+
+.table-view .column-header-background {
+    -fx-background-color: #edf2f7;
+    -fx-border-color: transparent transparent #cbd5e0 transparent;
+}
+
+.table-view .column-header {
+    -fx-background-color: transparent;
+    -fx-size: 34px;
+}
+
+.table-view .column-header .label {
+    -fx-text-fill: #4a5568;
+    -fx-font-weight: bold;
+    -fx-font-size: 13px;
+}
+
+.table-row-cell {
+    -fx-cell-size: 38px;
+    -fx-font-size: 13px;
+    -fx-text-fill: #2d3748;
+}
+
+.table-row-cell:odd {
+    -fx-background-color: #f7fafc;
+}
+
+.table-row-cell:even {
+    -fx-background-color: white;
+}
+
+.table-row-cell:selected {
+    -fx-background-color: #bee3f8;
+    -fx-text-fill: #2b6cb0;
+}
+
+.table-row-cell:hover {
+    -fx-background-color: #ebf8ff;
+}
+
+.combo-box .list-cell {
+    -fx-font-size: 13px;
+}

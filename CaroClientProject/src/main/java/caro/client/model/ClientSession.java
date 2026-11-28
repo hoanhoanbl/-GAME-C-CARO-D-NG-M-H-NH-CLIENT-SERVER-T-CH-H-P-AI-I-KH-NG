@@ -10,9 +10,13 @@ public class ClientSession {
     private User user;
     private String playerName;
     private boolean guest;
+    private String currentRoomId;
     private GameInfo currentGame;
 
     private ClientSession() { }
+
+    public String getCurrentRoomId() { return currentRoomId; }
+    public void setCurrentRoomId(String currentRoomId) { this.currentRoomId = currentRoomId; }
 
     public User getUser() { return user; }
     public void setUser(User user) {
